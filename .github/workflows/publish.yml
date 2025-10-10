@@ -51,7 +51,7 @@ jobs:
           namcap *.pkg.tar.zst
 
       - name: Commit and Push Changes
-        if: env.update_needed == "true"
+        if: ${{ env.update_needed == 'true' }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
@@ -60,7 +60,7 @@ jobs:
           git push origin master
 
       - name: Push to AUR
-        if: env.update_needed == "true"
+        if: ${{ env.update_needed == 'true' }}
         env:
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
         run: |
