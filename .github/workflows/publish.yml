@@ -64,7 +64,7 @@ jobs:
           "
 
       - name: Commit and Push Changes
-        if: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED == true }}
+        if: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED == 'true' }}
         env:
           STAKPAK_RELEASE_VERSION: ${{ steps.pkgbuild-update.outputs.STAKPAK_RELEASE_VERSION }}
         run: |
@@ -75,7 +75,7 @@ jobs:
           git push origin master
 
       - name: Push to AUR
-        if: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED == true }}
+        if: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED == 'true' }}
         env:
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
         run: |
