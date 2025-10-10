@@ -26,23 +26,30 @@ jobs:
           STAKPAK_RELEASE_VERSION=$(curl -s "https://api.github.com/repos/stakpak/agent/releases/latest" | jq -r .tag_name | sed 's/^v//')
           echo "STAKPAK_RELEASE_VERSION=$STAKPAK_RELEASE_VERSION" >> $GITHUB_ENV
 
-          if [ "$STAKPAK_RELEASE_VERSION" = "$AUR_PKG_VERSION" ]; then
+          AUR_PKG_REL=$(curl -s "https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=stakpak-bin" | jq -r '.results[0].Version' | cut -d '-' -f 2)
+          PKGBUILD_REL=$(grep "^pkgrel=" PKGBUILD | cut -d '=' -f 2 | cut -d "#" -f 1 | xargs)
+
+          if [ "$STAKPAK_RELEASE_VERSION" = "$AUR_PKG_VERSION" && "$AUR_PKG_REL" = "$PKGBUILD_REL" ]; then
             echo "AUR is up to date."
             echo 'update_needed="false"' >> $GITHUB_ENV
             exit 0
           fi
           echo 'update_needed="true"' >> $GITHUB_ENV
           
-          # Reset pkgver and pkgrel to 1 for new version
+          # Reset pkgver
           sed -i "s/^pkgver=.*/pkgver=$STAKPAK_RELEASE_VERSION/" PKGBUILD
-          sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
-          
+
+          # Reset pkgrel to 1 for new version
+          if [ "$STAKPAK_RELEASE_VERSION" != "$AUR_PKG_VERSION" ]; then
+            sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
+          fi
+
           # Update source URLs with new version
           sed -i "s|v\${pkgver}|v$STAKPAK_RELEASE_VERSION|g" PKGBUILD
-          
+
           # Update checksums
           updpkgsums
-          
+
           # Test and validate PKGBUILD
           bash -n PKGBUILD
           makepkg --printsrcinfo > .SRCINFO
