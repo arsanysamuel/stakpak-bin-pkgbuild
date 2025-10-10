@@ -9,14 +9,15 @@ jobs:
   aur:
     runs-on: ubuntu-latest
     container: archlinux:latest
-    outputs:
-      UPDATE_NEEDED: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED }}
-      STAKPAK_RELEASE_VERSION: ${{ steps.pkgbuild-update.outputs.STAKPAK_RELEASE_VERSION }}
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
+
     steps:
       - name: Install dependencies
         run: |
           pacman -Syu --noconfirm
-          pacman -Sy --noconfirm curl jq base-devel namcap pacman-contrib git openssh
+          pacman -Sy --noconfirm curl jq base-devel namcap pacman-contrib git sudo
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -71,8 +72,8 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add PKGBUILD .SRCINFO
-          git commit -m "Update stakpak-bin AUR package to v${STAKPAK_RELEASE_VERSION}"
-          git push origin master
+          git commit -m "Update stakpak-bin AUR package to v${STAKPAK_RELEASE_VERSION}" || echo "No changes to commit"
+          git push origin master || echo "No changes to push"
 
       - name: Push to AUR
         if: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED == 'true' }}
@@ -97,6 +98,7 @@ jobs:
 
           ssh-keyscan -t ed25519 aur.archlinux.org >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
+
           git remote remove aur 2>/dev/null || true
           git remote add aur ssh://aur@aur.archlinux.org/stakpak-bin.git
-          git push aur master
+          git push aur master || echo "No changes to push"
