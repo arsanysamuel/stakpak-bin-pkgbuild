@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: |
           pacman -Syu --noconfirm
-          pacman -Sy --noconfirm curl jq base-devel namcap pacman-contrib
+          pacman -Sy --noconfirm curl jq base-devel namcap pacman-contrib git openssh
 
       - name: Checkout repository
         uses: actions/checkout@v4
