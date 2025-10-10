@@ -6,9 +6,12 @@ on:
   workflow_dispatch:  # allow manual run
 
 jobs:
-  aur-publish:
+  aur:
     runs-on: ubuntu-latest
     container: archlinux:latest
+    outputs:
+      UPDATE_NEEDED: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED }}
+      STAKPAK_RELEASE_VERSION: ${{ steps.pkgbuild-update.outputs.STAKPAK_RELEASE_VERSION }}
     steps:
       - name: Install dependencies
         run: |
@@ -31,10 +34,10 @@ jobs:
 
           if [ "$STAKPAK_RELEASE_VERSION" = "$AUR_PKG_VERSION" ] && [ "$AUR_PKG_REL" = "$PKGBUILD_REL" ]; then
             echo "AUR is up to date."
-            echo 'UPDATE_NEEDED="false"' >> $GITHUB_OUTPUT
+            echo "UPDATE_NEEDED=false" >> $GITHUB_OUTPUT
             exit 0
           fi
-          echo 'UPDATE_NEEDED="true"' >> $GITHUB_OUTPUT
+          echo "UPDATE_NEEDED=true" >> $GITHUB_OUTPUT
           
           # Reset pkgver
           sed -i "s/^pkgver=.*/pkgver=$STAKPAK_RELEASE_VERSION/" PKGBUILD
@@ -61,9 +64,8 @@ jobs:
           "
 
       - name: Commit and Push Changes
-        if: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED == 'true' }}
+        if: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED == true }}
         env:
-          UPDATE_NEEDED: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED }}
           STAKPAK_RELEASE_VERSION: ${{ steps.pkgbuild-update.outputs.STAKPAK_RELEASE_VERSION }}
         run: |
           git config user.name "GitHub Actions"
@@ -73,9 +75,8 @@ jobs:
           git push origin master
 
       - name: Push to AUR
-        if: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED == 'true' }}
+        if: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED == true }}
         env:
-          UPDATE_NEEDED: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED }}
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
