@@ -47,15 +47,18 @@ jobs:
           # Update source URLs with new version
           sed -i "s|v\${pkgver}|v$STAKPAK_RELEASE_VERSION|g" PKGBUILD
 
-          # Update checksums
-          updpkgsums
+          # Create non-root user to run makepkg safely
+          useradd -m builder
+          chown -R builder:builder .
 
-          # Test and validate PKGBUILD
-          bash -n PKGBUILD
-          makepkg --printsrcinfo > .SRCINFO
-          makepkg --noconfirm --noprogressbar
-          namcap PKGBUILD
-          namcap *.pkg.tar.zst
+          # Update checksums and test package as 'builder'
+          sudo -u builder bash -c "
+            updpkgsums
+            makepkg --printsrcinfo > .SRCINFO
+            makepkg --noconfirm --noprogressbar
+            namcap PKGBUILD
+            namcap *.pkg.tar.zst
+          "
 
       - name: Commit and Push Changes
         if: ${{ env.update_needed == 'true' }}
