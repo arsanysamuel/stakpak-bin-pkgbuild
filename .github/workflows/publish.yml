@@ -24,17 +24,17 @@ jobs:
           # Check Version
           AUR_PKG_VERSION=$(curl -s "https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=stakpak-bin" | jq -r '.results[0].Version' | cut -d '-' -f 1)
           STAKPAK_RELEASE_VERSION=$(curl -s "https://api.github.com/repos/stakpak/agent/releases/latest" | jq -r .tag_name | sed 's/^v//')
-          echo "STAKPAK_RELEASE_VERSION=$STAKPAK_RELEASE_VERSION" >> $GITHUB_ENV
+          echo "STAKPAK_RELEASE_VERSION=$STAKPAK_RELEASE_VERSION" >> $GITHUB_OUTPUT
 
           AUR_PKG_REL=$(curl -s "https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=stakpak-bin" | jq -r '.results[0].Version' | cut -d '-' -f 2)
           PKGBUILD_REL=$(grep "^pkgrel=" PKGBUILD | cut -d '=' -f 2 | cut -d "#" -f 1 | xargs)
 
           if [ "$STAKPAK_RELEASE_VERSION" = "$AUR_PKG_VERSION" ] && [ "$AUR_PKG_REL" = "$PKGBUILD_REL" ]; then
             echo "AUR is up to date."
-            echo 'update_needed="false"' >> $GITHUB_ENV
+            echo 'UPDATE_NEEDED="false"' >> $GITHUB_OUTPUT
             exit 0
           fi
-          echo 'update_needed="true"' >> $GITHUB_ENV
+          echo 'UPDATE_NEEDED="true"' >> $GITHUB_OUTPUT
           
           # Reset pkgver
           sed -i "s/^pkgver=.*/pkgver=$STAKPAK_RELEASE_VERSION/" PKGBUILD
@@ -61,7 +61,10 @@ jobs:
           "
 
       - name: Commit and Push Changes
-        if: ${{ env.update_needed == 'true' }}
+        if: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED == 'true' }}
+        env:
+          UPDATE_NEEDED: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED }}
+          STAKPAK_RELEASE_VERSION: ${{ steps.pkgbuild-update.outputs.STAKPAK_RELEASE_VERSION }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
@@ -70,8 +73,9 @@ jobs:
           git push origin master
 
       - name: Push to AUR
-        if: ${{ env.update_needed == 'true' }}
+        if: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED == 'true' }}
         env:
+          UPDATE_NEEDED: ${{ steps.pkgbuild-update.outputs.UPDATE_NEEDED }}
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
