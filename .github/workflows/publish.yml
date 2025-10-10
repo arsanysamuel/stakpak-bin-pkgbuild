@@ -29,7 +29,7 @@ jobs:
           AUR_PKG_REL=$(curl -s "https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=stakpak-bin" | jq -r '.results[0].Version' | cut -d '-' -f 2)
           PKGBUILD_REL=$(grep "^pkgrel=" PKGBUILD | cut -d '=' -f 2 | cut -d "#" -f 1 | xargs)
 
-          if [ "$STAKPAK_RELEASE_VERSION" = "$AUR_PKG_VERSION" && "$AUR_PKG_REL" = "$PKGBUILD_REL" ]; then
+          if [ "$STAKPAK_RELEASE_VERSION" = "$AUR_PKG_VERSION" ] && [ "$AUR_PKG_REL" = "$PKGBUILD_REL" ]; then
             echo "AUR is up to date."
             echo 'update_needed="false"' >> $GITHUB_ENV
             exit 0
