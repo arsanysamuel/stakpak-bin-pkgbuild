@@ -69,6 +69,8 @@ jobs:
         env:
           STAKPAK_RELEASE_VERSION: ${{ steps.pkgbuild-update.outputs.STAKPAK_RELEASE_VERSION }}
         run: |
+          pwd
+          ls -lah
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add PKGBUILD .SRCINFO
