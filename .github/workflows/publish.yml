@@ -90,12 +90,13 @@ jobs:
           chmod 600 ~/.ssh/aur
 
           # Add SSH config for AUR
-          printf "Host aur.archlinux.org\n  IdentityFile ~/.ssh/aur\n  User aur\n  StrictHostKeyChecking no\n  IdentitiesOnly yes\n" > ~/.ssh/config
+          printf "Host aur.archlinux.org\n  IdentityFile ~/.ssh/aur\n  User aur\n  StrictHostKeyChecking no\n  UserKnownHostsFile /dev/null\n  IdentitiesOnly yes\n" > ~/.ssh/config
           chmod 600 ~/.ssh/config
-
-          ssh-keyscan -t ed25519 aur.archlinux.org >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
+          
+          # Configure git to use SSH with explicit key
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/aur -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          
+          # Push to AUR
           git remote remove aur 2>/dev/null || true
           git remote add aur ssh://aur@aur.archlinux.org/stakpak-bin.git
-          git push aur master || echo "No changes to push"
+          git push aur master
