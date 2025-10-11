@@ -91,12 +91,12 @@ jobs:
 
           # Add SSH config for AUR
           cat <<EOF > ~/.ssh/config
-          Host aur.archlinux.org
-            IdentityFile ~/.ssh/aur
-            User aur
-            StrictHostKeyChecking yes
-            IdentitiesOnly yes
-          EOF
+Host aur.archlinux.org
+  IdentityFile ~/.ssh/aur
+  User aur
+  StrictHostKeyChecking no
+  IdentitiesOnly yes
+EOF
           chmod 600 ~/.ssh/config
 
           ssh-keyscan -t ed25519 aur.archlinux.org >> ~/.ssh/known_hosts
