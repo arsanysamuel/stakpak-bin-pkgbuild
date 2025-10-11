@@ -96,7 +96,15 @@ jobs:
           # Configure git to use SSH with explicit key
           export GIT_SSH_COMMAND="ssh -i ~/.ssh/aur -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
           
-          # Push to AUR
-          git remote remove aur 2>/dev/null || true
-          git remote add aur ssh://aur@aur.archlinux.org/stakpak-bin.git
-          git push aur master
+          git clone ssh://aur@aur.archlinux.org/stakpak-bin.git aur-repo
+    
+          # Copy updated files to AUR repo
+          cp PKGBUILD .SRCINFO aur-repo/
+          
+          # Commit and push from AUR repo
+          cd aur-repo
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add PKGBUILD .SRCINFO
+          git commit -m "Update stakpak-bin to v${STAKPAK_RELEASE_VERSION}" || echo "No changes to commit"
+          git push origin master
