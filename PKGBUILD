@@ -20,7 +20,7 @@ source_aarch64=(
     "README.md::https://raw.githubusercontent.com/stakpak/agent/v${pkgver}/README.md"
 )
 
-# Generated checksums using updpkgsums 
+# Generated checksums using updpkgsums
 sha256sums_x86_64=('16ba0eae8339327fb40c0072b645545d3f3704bd00da60d1586b5e9e6e8041bf'
                    'c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4'
                    '8320695d303094310734f5df7e96722a03d7948b076d52849a7b014006aff793')

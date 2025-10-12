@@ -43,13 +43,10 @@ jobs:
           # Reset pkgver
           sed -i "s/^pkgver=.*/pkgver=$STAKPAK_RELEASE_VERSION/" PKGBUILD
 
-          # Reset pkgrel to 1 for new version
+          # Reset pkgrel to 1 for new versions
           if [ "$STAKPAK_RELEASE_VERSION" != "$AUR_PKG_VERSION" ]; then
             sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
           fi
-
-          # Update source URLs with new version
-          sed -i "s|v\${pkgver}|v$STAKPAK_RELEASE_VERSION|g" PKGBUILD
 
           # Create non-root user to run makepkg safely
           useradd -m builder
