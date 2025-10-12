@@ -40,9 +40,6 @@ jobs:
           fi
           echo "UPDATE_NEEDED=true" >> $GITHUB_OUTPUT
           
-          # Reset pkgver
-          sed -i "s/^pkgver=.*/pkgver=$STAKPAK_RELEASE_VERSION/" PKGBUILD
-
           # Reset pkgrel to 1 for new versions
           if [ "$STAKPAK_RELEASE_VERSION" != "$AUR_PKG_VERSION" ]; then
             sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
