@@ -48,6 +48,9 @@ jobs:
             sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
           fi
 
+          # Reset pkgver variable
+          sed -i "s/^pkgver=.*/pkgver=$STAKPAK_RELEASE_VERSION/" PKGBUILD
+
           # Create non-root user to run makepkg safely
           useradd -m builder
           chown -R builder:builder .
