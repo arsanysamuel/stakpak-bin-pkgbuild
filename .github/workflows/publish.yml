@@ -25,6 +25,9 @@ jobs:
       - name: Update PKGBUILD
         id: pkgbuild-update
         run: |
+          set -e
+          set -x
+
           # Check Version
           AUR_PKG_VERSION=$(curl -s "https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=stakpak-bin" | jq -r '.results[0].Version' | cut -d '-' -f 1)
           STAKPAK_RELEASE_VERSION=$(curl -s "https://api.github.com/repos/stakpak/agent/releases/latest" | jq -r .tag_name | sed 's/^v//')
@@ -81,6 +84,9 @@ jobs:
         env:
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
         run: |
+          set -e
+          set -x
+
           mkdir -p ~/.ssh
 
           # Save private key
