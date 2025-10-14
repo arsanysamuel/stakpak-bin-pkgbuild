@@ -49,6 +49,10 @@ jobs:
           useradd -m builder
           chown -R builder:builder .
 
+          # Remove repo readme and license
+          rm README.md 2> /dev/null
+          rm LICENSE 2> /dev/null
+
           # Update checksums and test package as 'builder'
           sudo -u builder bash -c "
             updpkgsums
